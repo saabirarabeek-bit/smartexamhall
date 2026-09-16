@@ -4,7 +4,7 @@
   "description": "Smart Examination Hall Seat Allocation System",
   "main": "backend/server.js",
   "scripts": {
-    "build": "echo \"Build completed successfully\"",
+    "build": "node build.js",
     "start": "node backend/server.js",
     "dev": "node backend/server.js"
   },

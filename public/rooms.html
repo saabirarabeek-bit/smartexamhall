@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Room Management - Smart Examination Hall Allocator</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/print.css" media="print">
+</head>
+<body>
+  <!-- Top Navigation Bar -->
+  <nav class="navbar">
+    <a href="index.html" class="brand-container">
+      <div class="brand-icon">🎓</div>
+      <div class="brand-text">
+        <h1>Smart Exam Hall</h1>
+        <span>Seat Allocation System</span>
+      </div>
+    </a>
+
+    <ul class="nav-links">
+      <li class="nav-item"><a href="index.html">📊 Dashboard</a></li>
+      <li class="nav-item"><a href="students.html">👥 Students</a></li>
+      <li class="nav-item active"><a href="rooms.html">🏛️ Exam Rooms</a></li>
+      <li class="nav-item"><a href="allocate.html">⚡ Allocate Seats</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <div class="backend-indicator">
+        <span class="indicator-dot"></span>
+        <span>Storage Active</span>
+      </div>
+      <a href="allocate.html" class="btn btn-primary btn-sm">⚡ Run Allocation</a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-wrapper">
+    <header class="page-header">
+      <div class="page-title-group">
+        <h2>Examination Halls & Rooms</h2>
+        <p>Configure exam centers, grid dimensions (rows × columns), bench sharing types, and maximum capacities.</p>
+      </div>
+      <div class="header-actions">
+        <span class="badge badge-cse" id="room-count-badge">0 Rooms</span>
+        <span class="badge badge-it" id="total-capacity-badge">0 Total Capacity</span>
+        <button class="btn btn-primary" onclick="openAddRoomModal()">
+          ➕ Add Exam Hall
+        </button>
+      </div>
+    </header>
+
+    <!-- Rooms Cards Grid -->
+    <section id="rooms-grid-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+      <!-- Dynamically rendered by rooms.js -->
+    </section>
+  </main>
+
+  <!-- Add / Edit Room Modal with Dynamic Grid Preview -->
+  <div class="modal-overlay" id="room-modal-overlay">
+    <div class="modal-card" style="max-width: 540px;">
+      <div class="modal-header">
+        <h3 id="room-modal-title">Add Exam Room</h3>
+        <button class="btn-close" onclick="closeRoomModal()">✕</button>
+      </div>
+      <form id="room-form">
+        <div class="modal-body">
+          <input type="hidden" id="room-id">
+
+          <div class="form-group">
+            <label for="room-name">Hall / Room Name *</label>
+            <input type="text" id="room-name" class="form-control no-icon" placeholder="e.g. Hall 201 - Engineering Block" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="room-rows">Number of Rows (1 - 12) *</label>
+              <input type="number" id="room-rows" class="form-control no-icon" min="1" max="12" value="5" required>
+            </div>
+            <div class="form-group">
+              <label for="room-columns">Number of Columns (1 - 12) *</label>
+              <input type="number" id="room-columns" class="form-control no-icon" min="1" max="12" value="6" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="room-bench-type">Bench Configuration *</label>
+              <select id="room-bench-type" class="form-select" style="width: 100%;">
+                <option value="single">Single Desk (1 Student per Desk)</option>
+                <option value="double">Double Sharing (2 Students per Desk)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Calculated Capacity</label>
+              <div style="background: var(--bg-surface); padding: 0.6rem 0.9rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); font-weight: 800; color: var(--accent-cyan); font-size: 1.1rem;">
+                <span id="calculated-capacity">30</span> Seats
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="room-description">Location / Hall Notes</label>
+            <input type="text" id="room-description" class="form-control no-icon" placeholder="e.g. 2nd Floor Science Block, AC equipped">
+          </div>
+
+          <!-- Live Interactive Layout Preview -->
+          <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1rem; margin-top: 0.5rem;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+              <span>Live Hall Layout Preview</span>
+              <span>▲ Blackboard / Invigilator Desk</span>
+            </div>
+            <div id="modal-grid-preview" style="display: grid; gap: 4px; max-height: 140px; overflow-y: auto; padding: 4px; background: rgba(0,0,0,0.3); border-radius: 4px;">
+              <!-- Dynamic mini blocks -->
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="closeRoomModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm">Save Hall</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Room Modal -->
+  <div class="modal-overlay" id="delete-room-modal-overlay">
+    <div class="modal-card" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 style="color: #f87171;">Confirm Hall Deletion</h3>
+        <button class="btn-close" onclick="closeDeleteRoomModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.9rem; color: var(--text-secondary);">
+          Are you sure you want to remove <strong id="delete-room-name" style="color: #fff;"></strong>? Any existing seat allocation for this hall will be cleared.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeDeleteRoomModal()">Cancel</button>
+        <button type="button" class="btn btn-danger btn-sm" onclick="confirmDeleteRoom()">Delete Hall</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>Smart Examination Hall Seat Allocation System • Exam Hall Management</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/storage.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/rooms.js"></script>
+</body>
+</html>
