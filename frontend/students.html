@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Management - Smart Examination Hall Allocator</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/print.css" media="print">
+</head>
+<body>
+  <!-- Top Navigation Bar -->
+  <nav class="navbar">
+    <a href="index.html" class="brand-container">
+      <div class="brand-icon">🎓</div>
+      <div class="brand-text">
+        <h1>Smart Exam Hall</h1>
+        <span>Seat Allocation System</span>
+      </div>
+    </a>
+
+    <ul class="nav-links">
+      <li class="nav-item"><a href="index.html">📊 Dashboard</a></li>
+      <li class="nav-item active"><a href="students.html">👥 Students</a></li>
+      <li class="nav-item"><a href="rooms.html">🏛️ Exam Rooms</a></li>
+      <li class="nav-item"><a href="allocate.html">⚡ Allocate Seats</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <div class="backend-indicator">
+        <span class="indicator-dot"></span>
+        <span>Storage Active</span>
+      </div>
+      <a href="allocate.html" class="btn btn-primary btn-sm">⚡ Run Allocation</a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-wrapper">
+    <header class="page-header">
+      <div class="page-title-group">
+        <h2>Student Management</h2>
+        <p>Maintain candidate records, class departments, sections, and subject codes for exam seating.</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary" onclick="openBulkImportModal()">
+          📥 Bulk Import (CSV / JSON)
+        </button>
+        <button class="btn btn-primary" onclick="openAddStudentModal()">
+          ➕ Add Student
+        </button>
+      </div>
+    </header>
+
+    <!-- Students Card Container -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <span>👥</span> Candidate Registry
+          <span class="badge badge-default" id="student-count-badge" style="margin-left: 0.5rem;">0 Students</span>
+        </div>
+      </div>
+
+      <!-- Filter / Search Bar -->
+      <div class="filter-bar">
+        <div class="search-box">
+          <span class="search-icon">🔎</span>
+          <input type="text" id="student-search" class="form-control" placeholder="Search by roll number or student name...">
+        </div>
+
+        <select id="class-filter" class="form-select" style="min-width: 200px;">
+          <option value="">All Departments / Classes</option>
+        </select>
+
+        <select id="subject-filter" class="form-select" style="min-width: 180px;">
+          <option value="">All Subject Codes</option>
+        </select>
+      </div>
+
+      <!-- Table of Students -->
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 50px;">#</th>
+              <th>Roll Number</th>
+              <th>Full Name</th>
+              <th>Class / Department</th>
+              <th>Section</th>
+              <th>Exam Subject</th>
+              <th style="text-align: right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="students-table-body">
+            <!-- Populated via students.js -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Add / Edit Student Modal -->
+  <div class="modal-overlay" id="student-modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="student-modal-title">Add New Student</h3>
+        <button class="btn-close" onclick="closeStudentModal()">✕</button>
+      </div>
+      <form id="student-form">
+        <div class="modal-body">
+          <input type="hidden" id="student-id">
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="student-roll">Roll Number *</label>
+              <input type="text" id="student-roll" class="form-control no-icon" placeholder="e.g. CS2401" required>
+            </div>
+            <div class="form-group">
+              <label for="student-section">Section *</label>
+              <input type="text" id="student-section" class="form-control no-icon" placeholder="A, B, or C" value="A" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="student-name">Student Full Name *</label>
+            <input type="text" id="student-name" class="form-control no-icon" placeholder="e.g. Aarav Sharma" required>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="student-class">Class / Department *</label>
+              <select id="student-class" class="form-select" style="width: 100%;">
+                <option value="B.Tech CSE">B.Tech CSE (Computer Science)</option>
+                <option value="B.Tech IT">B.Tech IT (Information Tech)</option>
+                <option value="B.Tech ECE">B.Tech ECE (Electronics & Comm)</option>
+                <option value="B.Tech MECH">B.Tech MECH (Mechanical Eng)</option>
+                <option value="B.Tech CIVIL">B.Tech CIVIL (Civil Eng)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="student-subject">Subject Code *</label>
+              <input type="text" id="student-subject" class="form-control no-icon" placeholder="e.g. CS301" required>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="closeStudentModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm">Save Student</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Bulk Import Modal -->
+  <div class="modal-overlay" id="bulk-modal-overlay">
+    <div class="modal-card" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3>Bulk Import Students</h3>
+        <button class="btn-close" onclick="closeBulkImportModal()">✕</button>
+      </div>
+      <form id="bulk-import-form">
+        <div class="modal-body">
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">
+            Paste comma-separated CSV lines or a JSON array of student records.
+          </p>
+          <div style="background: var(--bg-surface); padding: 0.75rem; border-radius: var(--radius-sm); font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; color: var(--accent-cyan); margin-bottom: 1rem;">
+            CSV Format: RollNumber, Name, ClassName, Section, SubjectCode<br>
+            Example:<br>
+            CS2413, Priya Sen, B.Tech CSE, A, CS301<br>
+            IT2413, Rakesh Roy, B.Tech IT, B, IT302
+          </div>
+          <div class="form-group">
+            <label for="bulk-import-text">Data to Import *</label>
+            <textarea id="bulk-import-text" class="form-control no-icon" rows="8" placeholder="Paste CSV or JSON here..." style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="closeBulkImportModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm">Import Candidates</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal-overlay" id="delete-modal-overlay">
+    <div class="modal-card" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 style="color: #f87171;">Confirm Student Deletion</h3>
+        <button class="btn-close" onclick="closeDeleteModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.9rem; color: var(--text-secondary);">
+          Are you sure you want to remove <strong id="delete-student-name" style="color: #fff;"></strong> from the examination registry?
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeDeleteModal()">Cancel</button>
+        <button type="button" class="btn btn-danger btn-sm" onclick="confirmDeleteStudent()">Delete Permanently</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>Smart Examination Hall Seat Allocation System • Student Registry</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/storage.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/students.js"></script>
+</body>
+</html>

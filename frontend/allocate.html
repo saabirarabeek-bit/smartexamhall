@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Seat Allocation & Chart - Examination System</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/print.css" media="print">
+</head>
+<body>
+  <!-- Top Navigation Bar -->
+  <nav class="navbar">
+    <a href="index.html" class="brand-container">
+      <div class="brand-icon">🎓</div>
+      <div class="brand-text">
+        <h1>Smart Exam Hall</h1>
+        <span>Seat Allocation System</span>
+      </div>
+    </a>
+
+    <ul class="nav-links">
+      <li class="nav-item"><a href="index.html">📊 Dashboard</a></li>
+      <li class="nav-item"><a href="students.html">👥 Students</a></li>
+      <li class="nav-item"><a href="rooms.html">🏛️ Exam Rooms</a></li>
+      <li class="nav-item active"><a href="allocate.html">⚡ Allocate Seats</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <div class="backend-indicator">
+        <span class="indicator-dot"></span>
+        <span>Storage Active</span>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="window.print()">
+        🖨️ Print View
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Content Wrapper -->
+  <main class="main-wrapper">
+    <header class="page-header">
+      <div class="page-title-group">
+        <h2>Smart Seat Allocation</h2>
+        <p>Set up an examination event, select participating halls, and generate malpractice-preventing seating charts.</p>
+      </div>
+    </header>
+
+    <!-- Exam Event Configuration Card -->
+    <section class="card" style="margin-bottom: 2rem;">
+      <div class="card-header">
+        <div class="card-title">
+          <span>⚙️</span> Exam Session Setup
+        </div>
+        <span id="setup-status-badge" class="badge badge-cse">Calculating Cohort...</span>
+      </div>
+
+      <form id="exam-session-form">
+        <div class="form-row" style="margin-bottom: 1.25rem;">
+          <div class="form-group">
+            <label for="exam-name">Examination Title *</label>
+            <input type="text" id="exam-name" class="form-control no-icon" value="End-Semester Theory Examinations - Spring 2026" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="exam-date">Exam Date *</label>
+              <input type="date" id="exam-date" class="form-control no-icon" required>
+            </div>
+            <div class="form-group">
+              <label for="exam-time">Time Slot *</label>
+              <input type="text" id="exam-time" class="form-control no-icon" value="09:30 AM - 12:30 PM" required>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+          <!-- Select Rooms -->
+          <div>
+            <label style="display: block; font-size: 0.825rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.5rem;">
+              Select Participating Exam Halls *
+            </label>
+            <div id="rooms-selector-list" style="display: flex; flex-direction: column; gap: 0.5rem; max-height: 180px; overflow-y: auto; padding-right: 0.5rem;">
+              <!-- Checkboxes populated dynamically -->
+            </div>
+          </div>
+
+          <!-- Select Subjects -->
+          <div>
+            <label style="display: block; font-size: 0.825rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.5rem;">
+              Participating Subject Codes
+            </label>
+            <div id="subjects-selector-list" style="display: flex; flex-wrap: wrap; gap: 0.5rem; max-height: 180px; overflow-y: auto; background: var(--bg-surface); padding: 0.85rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+              <!-- Checkboxes populated dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+          <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.75rem; font-size: 0.95rem;">
+            ⚡ Run Smart Allocation Algorithm
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Allocation Results Section -->
+    <div id="allocation-results-section" style="display: none;">
+      <!-- Run KPIs -->
+      <section class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon primary">👥</div>
+          <div class="stat-info">
+            <div class="stat-value" id="res-total-students">0</div>
+            <div class="stat-label">Candidates Processed</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon emerald">✓</div>
+          <div class="stat-info">
+            <div class="stat-value" id="res-total-allocated">0</div>
+            <div class="stat-label">Seats Allocated</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon cyan">🪑</div>
+          <div class="stat-info">
+            <div class="stat-value" id="res-total-capacity">0</div>
+            <div class="stat-label">Available Capacity</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon rose">⚠️</div>
+          <div class="stat-info">
+            <div class="stat-value" id="res-total-unallocated">0</div>
+            <div class="stat-label">Overflow / Unallocated</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon amber">🔔</div>
+          <div class="stat-info">
+            <div class="stat-value" id="res-total-conflicts">0</div>
+            <div class="stat-label">Adjacency Notices</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Alert & Warnings Container -->
+      <div id="res-alerts-container"></div>
+
+      <!-- Search & Class Filter on Seat Chart -->
+      <div class="card" style="margin-bottom: 1.5rem; padding: 1.25rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+          <div style="display: flex; align-items: center; gap: 0.75rem; flex: 1; min-width: 280px;">
+            <div class="search-box">
+              <span class="search-icon">🔎</span>
+              <input type="text" id="chart-search-roll" class="form-control" placeholder="Search Roll Number (e.g. CS2401)...">
+            </div>
+            <div id="search-result-status" style="white-space: nowrap;"></div>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <select id="chart-class-filter" class="form-select" style="min-width: 200px;">
+              <option value="">Highlight All Classes</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visual Hall Container -->
+      <div id="seatchart-view-container">
+        <!-- Injected by SeatChart.js -->
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>Smart Examination Hall Seat Allocation System • Smart Allocation Engine</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/storage.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/allocationEngine.js"></script>
+  <script src="js/seatChart.js"></script>
+  <script src="js/allocatePage.js"></script>
+</body>
+</html>

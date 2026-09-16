@@ -1,0 +1,17 @@
+{
+  "name": "smart-exam-seat-allocator-backend",
+  "version": "1.0.0",
+  "description": "Dummy REST API backend for Smart Examination Hall Seat Allocation System",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": ["exam", "hall", "seat-allocation", "education"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  }
+}

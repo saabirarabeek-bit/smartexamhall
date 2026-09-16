@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Examination Hall Seat Allocation System</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/print.css" media="print">
+</head>
+<body>
+  <!-- Top Navigation Bar -->
+  <nav class="navbar">
+    <a href="index.html" class="brand-container">
+      <div class="brand-icon">🎓</div>
+      <div class="brand-text">
+        <h1>Smart Exam Hall</h1>
+        <span>Seat Allocation System</span>
+      </div>
+    </a>
+
+    <ul class="nav-links">
+      <li class="nav-item active"><a href="index.html">📊 Dashboard</a></li>
+      <li class="nav-item"><a href="students.html">👥 Students</a></li>
+      <li class="nav-item"><a href="rooms.html">🏛️ Exam Rooms</a></li>
+      <li class="nav-item"><a href="allocate.html">⚡ Allocate Seats</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <div class="backend-indicator" title="Connected to LocalStorage with Express REST API demo">
+        <span class="indicator-dot"></span>
+        <span>Storage Active</span>
+      </div>
+      <button class="btn btn-outline btn-sm" id="btn-reset-demo" title="Reset dataset to default 48 students & 3 rooms">
+        🔄 Reset Demo Data
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Content Wrapper -->
+  <main class="main-wrapper">
+    <!-- Page Header -->
+    <header class="page-header">
+      <div class="page-title-group">
+        <h2>Executive Dashboard</h2>
+        <p>Real-time overview of examination hall capacities, enrolled students, and smart seating status.</p>
+      </div>
+      <div class="header-actions">
+        <a href="allocate.html" class="btn btn-primary">
+          ⚡ Run Seat Allocation
+        </a>
+      </div>
+    </header>
+
+    <!-- KPI Summary Metrics Grid -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon primary">👥</div>
+        <div class="stat-info">
+          <div class="stat-value" id="stat-total-students">0</div>
+          <div class="stat-label">Total Enrolled Students</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon cyan">🏛️</div>
+        <div class="stat-info">
+          <div class="stat-value" id="stat-total-rooms">0</div>
+          <div class="stat-label">Configured Halls</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon emerald">🪑</div>
+        <div class="stat-info">
+          <div class="stat-value" id="stat-total-capacity">0</div>
+          <div class="stat-label">Total Seating Capacity</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon amber">🏷️</div>
+        <div class="stat-info">
+          <div class="stat-value" id="stat-allocated">0</div>
+          <div class="stat-label">Seats Allocated</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon rose">⭕</div>
+        <div class="stat-info">
+          <div class="stat-value" id="stat-vacant">0</div>
+          <div class="stat-label">Seats Vacant</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Health & Warnings Panel -->
+    <section id="dashboard-warnings" style="margin-bottom: 2rem;"></section>
+
+    <!-- Quick Roll Number Search & Highlights Card -->
+    <section class="card" style="margin-bottom: 2rem;">
+      <div class="card-header">
+        <div class="card-title">
+          <span>🔍</span> Quick Student Seat Lookup
+        </div>
+        <span style="font-size: 0.8rem; color: var(--text-muted);">Instant locator across all exam halls</span>
+      </div>
+      <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+        Enter any student roll number (e.g. <code>CS2401</code>, <code>IT2405</code>, <code>EC2408</code>) to instantly jump to their hall and highlight their allocated seat.
+      </p>
+      <form id="quick-search-form" style="display: flex; gap: 0.75rem; max-width: 600px;">
+        <div class="search-box">
+          <span class="search-icon">🔎</span>
+          <input type="text" id="quick-roll-input" class="form-control" placeholder="Enter Roll Number (e.g. CS2401)..." required>
+        </div>
+        <button type="submit" class="btn btn-primary">Find Seat →</button>
+      </form>
+    </section>
+
+    <!-- Recent Session & Navigation Shortcuts -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
+      <!-- Recent Allocation Run Card -->
+      <section class="card" style="margin-bottom: 0;">
+        <div class="card-header">
+          <div class="card-title">
+            <span>⚡</span> Active Seating Session
+          </div>
+        </div>
+        <div id="recent-allocation-summary">
+          <p style="color: var(--text-muted); font-size: 0.875rem;">
+            No allocation has been run yet. Click "Run Seat Allocation" to automatically distribute students across halls.
+          </p>
+          <div style="margin-top: 1.25rem;">
+            <a href="allocate.html" class="btn btn-primary btn-sm">Configure Exam Session →</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quick Management Card -->
+      <section class="card" style="margin-bottom: 0;">
+        <div class="card-header">
+          <div class="card-title">
+            <span>⚙️</span> Fast Operations
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          <a href="students.html" class="btn btn-secondary" style="justify-content: flex-start;">
+            <span>👥</span> Manage Students & Bulk CSV Import
+          </a>
+          <a href="rooms.html" class="btn btn-secondary" style="justify-content: flex-start;">
+            <span>🏛️</span> Manage Examination Halls & Grid Sizes
+          </a>
+          <a href="allocate.html" class="btn btn-secondary" style="justify-content: flex-start;">
+            <span>🖨️</span> Export Printable Hall Rosters & CSV
+          </a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>Smart Examination Hall Seat Allocation System • Client-side localStorage persistence with Express REST API Demo</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/storage.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
